@@ -17,17 +17,26 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-          cache: gradle
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Fix Permissions & Clean
+        run: |
+          # إعطاء صلاحيات لكل شيء لضمان عدم ظهور أخطاء Access
+          chmod -R 777 .
+          # إنشاء ملف إعدادات افتراضي لزيادة سرعة واستقرار البناء
+          echo "org.gradle.daemon=false" >> gradle.properties
+          echo "android.useAndroidX=true" >> gradle.properties
+          echo "android.enableJetifier=true" >> gradle.properties
 
       - name: Build with Gradle
-        # أضفنا --no-daemon و --stacktrace لمعرفة سبب الخطأ الحقيقي إذا فشل
-        # وأضفنا أمر التنظيف clean أولاً
+        # استخدام خيار --no-daemon لتوفير الذاكرة ومنع تعليق العملية
         run: |
           if [ -f "gradlew" ]; then
-            chmod +x gradlew
-            ./gradlew clean assembleDebug --no-daemon
+            ./gradlew assembleDebug --no-daemon
           else
-            gradle clean assembleDebug --no-daemon
+            gradle assembleDebug --no-daemon
           fi
 
       - name: Upload APK
