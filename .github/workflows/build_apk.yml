@@ -18,12 +18,13 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      # بدلاً من استخدام gradlew، سنقوم بتثبيت Gradle وبناء المشروع مباشرة
+      # هنا قمنا بتحديد إصدار Gradle مستقر ومتوافق مع معظم مشاريع KSP الحالية
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: '8.5' 
 
       - name: Build APK
-        # هذا الأمر سيبحث عن ملف build.gradle ويقوم بالبناء بدونه الحاجة لـ gradlew
         run: gradle assembleDebug
 
       - name: Upload APK
