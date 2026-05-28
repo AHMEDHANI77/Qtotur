@@ -18,24 +18,18 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+      # هذه الأداة الرسمية ستقوم بتوليد ملف gradlew الناقص وتجهيز البيئة بدقة
+      - name: Validate Gradle Wrapper
+        uses: gradle/actions/wrapper-validation@v3
 
-      - name: Create local.properties
-        # إنشاء ملف الخصائص وضبط الذاكرة لتجنب أخطاء الـ Java Heap
-        run: |
-          echo "sdk.dir=$ANDROID_SDK_ROOT" > local.properties
-          echo "org.gradle.jvmargs=-Xmx2048m -XX:MaxMetaspaceSize=512m" >> gradle.properties
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
 
       - name: Build with Gradle
-        # سنستخدم خيار تجاهل المشاكل البسيطة واستخدام إصدار gradle مثبت مسبقاً
+        # سنقوم بتوليد الـ Wrapper أولاً ثم البناء ببيئة معزولة ونظيفة
         run: |
-          chmod -R +x .
-          if [ -f "gradlew" ]; then
-            ./gradlew assembleDebug --no-daemon --stacktrace
-          else
-            gradle assembleDebug --no-daemon --stacktrace
-          fi
+          gradle wrapper
+          ./gradlew assembleDebug --no-daemon
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
