@@ -21,14 +21,14 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
 
-      - name: Build with Custom Wrapper
+      - name: Build with Required Gradle Version
         run: |
-          # توليد الـ Wrapper بإصدار مستقر ومتوافق مع مشاريع جوجل الحديثة
-          gradle wrapper --gradle-version 8.4
+          # توليد الـ Wrapper بإصدار 9.3.1 المتوافق إجبارياً مع AGP 9.1.1 المكتوب في كودك
+          gradle wrapper --gradle-version 9.3.1
           chmod +x gradlew
           
-          # البناء مع تفعيل خيارات التخطي القصوى والتمرير السريع
-          ./gradlew assembleDebug -x test -x lint -x lintVitalRelease --continue --no-daemon
+          # البدء في البناء الفعلي مع تخطي الفحوصات الجانبية
+          ./gradlew assembleDebug -x test -x lint -x lintVitalRelease --no-daemon
           
       - name: Upload APK
         uses: actions/upload-artifact@v4
