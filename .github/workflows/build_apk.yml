@@ -18,17 +18,14 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      # هذه الأداة الرسمية ستقوم بتوليد ملف gradlew الناقص وتجهيز البيئة بدقة
-      - name: Validate Gradle Wrapper
-        uses: gradle/actions/wrapper-validation@v3
-
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
 
       - name: Build with Gradle
-        # سنقوم بتوليد الـ Wrapper أولاً ثم البناء ببيئة معزولة ونظيفة
+        # سنقوم بتوليد ملفات الـ Wrapper يدوياً ثم بناء الـ APK مباشرة
         run: |
-          gradle wrapper
+          gradle wrapper --gradle-version 8.1
+          chmod +x gradlew
           ./gradlew assembleDebug --no-daemon
 
       - name: Upload APK
