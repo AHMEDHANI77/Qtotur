@@ -17,19 +17,25 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-          cache: gradle
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v3
-        with:
-          # إصدار 8.1 من Gradle هو الأنسب لإصدار AGP 8.1.1 الموجود في مشروعك
-          gradle-version: 8.1
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Create local.properties
+        # إنشاء ملف الخصائص وضبط الذاكرة لتجنب أخطاء الـ Java Heap
+        run: |
+          echo "sdk.dir=$ANDROID_SDK_ROOT" > local.properties
+          echo "org.gradle.jvmargs=-Xmx2048m -XX:MaxMetaspaceSize=512m" >> gradle.properties
 
       - name: Build with Gradle
+        # سنستخدم خيار تجاهل المشاكل البسيطة واستخدام إصدار gradle مثبت مسبقاً
         run: |
           chmod -R +x .
-          # التنظيف ضروري جداً هنا لتجنب تعارض الكاش
-          gradle clean assembleDebug --no-daemon
+          if [ -f "gradlew" ]; then
+            ./gradlew assembleDebug --no-daemon --stacktrace
+          else
+            gradle assembleDebug --no-daemon --stacktrace
+          fi
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
