@@ -17,27 +17,19 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
+          cache: gradle
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Fix Permissions & Clean
-        run: |
-          # إعطاء صلاحيات لكل شيء لضمان عدم ظهور أخطاء Access
-          chmod -R 777 .
-          # إنشاء ملف إعدادات افتراضي لزيادة سرعة واستقرار البناء
-          echo "org.gradle.daemon=false" >> gradle.properties
-          echo "android.useAndroidX=true" >> gradle.properties
-          echo "android.enableJetifier=true" >> gradle.properties
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          # إصدار 8.1 من Gradle هو الأنسب لإصدار AGP 8.1.1 الموجود في مشروعك
+          gradle-version: 8.1
 
       - name: Build with Gradle
-        # استخدام خيار --no-daemon لتوفير الذاكرة ومنع تعليق العملية
         run: |
-          if [ -f "gradlew" ]; then
-            ./gradlew assembleDebug --no-daemon
-          else
-            gradle assembleDebug --no-daemon
-          fi
+          chmod -R +x .
+          # التنظيف ضروري جداً هنا لتجنب تعارض الكاش
+          gradle clean assembleDebug --no-daemon
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
